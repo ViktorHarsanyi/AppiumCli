@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite thread-count="2" guice-stage="DEVELOPMENT" name="Failed suite [AndroidNativeSuite]" parallel="tests">
+  <test thread-count="2" name="Android native app test on Pixel(failed)" parallel="tests">
+    <parameter name="udid" value="emulator-5554"/>
+    <parameter name="platform" value="Android 8.0"/>
+    <parameter name="systemPort" value="8201"/>
+    <classes>
+      <class name="parallel_exec.suites.AndroidNativeSuite">
+        <methods>
+          <include name="mainTest"/>
+          <include name="teardown"/>
+          <include name="setup"/>
+        </methods>
+      </class> <!-- parallel_exec.suites.AndroidNativeSuite -->
+    </classes>
+  </test> <!-- Android native app test on Pixel(failed) -->
+  <test thread-count="2" name="Android native app test on s8(failed)" parallel="tests">
+    <parameter name="udid" value="ce10171ac14acf2004"/>
+    <parameter name="platform" value="Android 9"/>
+    <parameter name="systemPort" value="8200"/>
+    <classes>
+      <class name="parallel_exec.suites.AndroidNativeSuite">
+        <methods>
+          <include name="mainTest"/>
+          <include name="teardown"/>
+          <include name="setup"/>
+        </methods>
+      </class> <!-- parallel_exec.suites.AndroidNativeSuite -->
+    </classes>
+  </test> <!-- Android native app test on s8(failed) -->
+</suite> <!-- Failed suite [AndroidNativeSuite] -->
