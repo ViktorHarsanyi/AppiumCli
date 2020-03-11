@@ -1,0 +1,22 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="WebAppSuite" verbose="1" parallel="tests" thread-count="2">
+    <test name="Web app test on Pixel">
+        <parameter name="platform" value="Android 9"/>
+        <parameter name="udid" value="emulator-5554"/>
+        <parameter name="chromeDriverPort" value="9516"/>
+        <parameter name="chromeDriverPath" value="C:\\Users\\ideig\\driverChrome\\chromedriver.exe"/>
+        <classes>
+            <class name="parallel_exec.suites.AndroidWebAppSuite" />
+        </classes>
+    </test>
+    <test name="Web app test on s8">
+        <parameter name="platform" value="Android 9"/>
+        <parameter name="udid" value="ce10171ac14acf2004"/>
+        <parameter name="chromeDriverPath" value="C:\\Users\\ideig\\driverChrome\\chromedriver.exe"/>
+        <parameter name="chromeDriverPort" value="9515"/>
+        <classes>
+            <class name="parallel_exec.suites.AndroidWebAppSuite" />
+        </classes>
+    </test>
+</suite>

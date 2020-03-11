@@ -1,16 +1,14 @@
-package parallel_exec.android;
+package parallel_exec.ios;
 
 import io.appium.java_client.MobileElement;
-import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.android.nativekey.AndroidKey;
+import io.appium.java_client.ios.IOSDriver;
 import org.openqa.selenium.By;
 
 import java.util.List;
 
+public class NativeWrapper extends IosCaseBuilder {
 
-public class NativeWrapper extends AndroidCaseBuilder   {
-
-    public NativeWrapper(AndroidDriver<MobileElement> driver){
+    public NativeWrapper(IOSDriver<MobileElement> driver){
         super(driver);
     }
 
@@ -21,11 +19,6 @@ public class NativeWrapper extends AndroidCaseBuilder   {
     public NativeWrapper clickIt(By element){
         clickEvent(element);
         return this;
-    }
-
-    public NativeWrapper clickIt(String tagName){
-       clickEvent(By.tagName(tagName));
-       return this;
     }
 
     public NativeWrapper waitForClickable(By element){
@@ -76,10 +69,9 @@ public class NativeWrapper extends AndroidCaseBuilder   {
         return this;
     }
 
-    public NativeWrapper press(AndroidKey key){
-        pressButton(key);
+    public NativeWrapper homeButton() throws InterruptedException {
+        pressHomeButton(-1);
+        wait(100L);
         return this;
     }
-
-
 }

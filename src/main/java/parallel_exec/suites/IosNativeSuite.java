@@ -1,12 +1,10 @@
 package parallel_exec.suites;
 
-
 import annotations.ApplicationParams;
 import annotations.ControlNotation;
 import annotations.TypedCommand;
 import io.appium.java_client.MobileElement;
-import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.remote.AndroidMobileCapabilityType;
+import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -15,7 +13,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import parallel_exec.android.NativeWrapper;
+import parallel_exec.ios.NativeWrapper;
 import utils.FileFilter;
 import utils.ReflectionHelper;
 import utils.ScannerByLine;
@@ -26,13 +24,14 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class AndroidNativeSuite {
+public class IosNativeSuite {
 
     private final static String APPIUM_SERVER_URL = "http://127.0.0.1:4723/wd/hub";
-    private AndroidDriver<MobileElement> driver;
+    private IOSDriver<MobileElement> driver;
     private WebDriverWait wait;
-    private TypedCommand typedCommand;
+
     private NativeWrapper screen;
+    private TypedCommand typedCommand;
 
     @ControlNotation(canGoToJira = false)
     @BeforeTest(alwaysRun = true)
@@ -48,24 +47,23 @@ public class AndroidNativeSuite {
         ApplicationParams params = method.getAnnotation(ApplicationParams.class);
         typedCommand = method.getAnnotation(TypedCommand.class);
 
-
-
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "uiautomator2");
+        capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "XCUITest");
         capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, platformInfo[0]);
         capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, platformInfo[1]);
-        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Android Emulator");
+        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "iOS Emulator");
         capabilities.setCapability(MobileCapabilityType.UDID, udid);
         capabilities.setCapability(MobileCapabilityType.NO_RESET,true);
         capabilities.setCapability(MobileCapabilityType.FULL_RESET,false);
-        capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, systemPort);
-        capabilities.setCapability("appPackage", params.appPackage());
-        capabilities.setCapability("appActivity",params.pathToApp());
+        capabilities.setCapability("bundleId", params.bundleId());
+        capabilities.setCapability("xcodeOrgId", params.xcodeOrgId());
+        capabilities.setCapability("xcodeSigningId", params.xcodeSigningId());
+        capabilities.setCapability("updatedWDABundleId", params.updatedWDABundleId());
+        capabilities.setCapability("app",params.pathToApp());
         capabilities.setCapability("autoGrantPermissions", "true");
         capabilities.setCapability(MobileCapabilityType.ORIENTATION, "PORTRAIT");
-        capabilities.setCapability(MobileCapabilityType.NO_RESET, false);
-
-        driver = new AndroidDriver<MobileElement>(url, capabilities);
+        capabilities.setCapability(MobileCapabilityType.NO_RESET, true);
+        driver = new IOSDriver<>(url, capabilities);
         wait = new WebDriverWait(driver,300);
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
@@ -79,9 +77,7 @@ public class AndroidNativeSuite {
         else hardCodedTestCase();
     }
 
-    private String getMessage() {
-        return driver.findElementByAccessibilityId("Alt Message").getText();
-    }
+
 
     @AfterTest(alwaysRun = true)
     public void teardown() throws Exception {
@@ -91,7 +87,7 @@ public class AndroidNativeSuite {
     }
 
 
-    private List<MobileElement> sweepElements(String className){
+    private List<MobileElement> sweepSearchElements(String className){
         return driver.findElements(By.className(className));
     }
 
@@ -113,4 +109,3 @@ public class AndroidNativeSuite {
 
 
 }
-

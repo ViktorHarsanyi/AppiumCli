@@ -73,8 +73,7 @@ public class AndroidCaseBuilder {
 
     public String read(By element){
         waitFor(element);
-        String result = driver.findElement(element).getText();
-        return result;
+        return driver.findElement(element).getText();
     }
 
     public void assertEq(By element,String expected){
@@ -89,7 +88,7 @@ public class AndroidCaseBuilder {
     }
 
     void swipe(int startY,int startX,int endY,int endX, int duration) {
-        new TouchAction(driver).press(PointOption.point(startX,startY)).waitAction(WaitOptions.waitOptions(Duration.ofMillis(duration))).moveTo(PointOption.point(endX,endY))
+        new TouchAction<>(driver).press(PointOption.point(startX,startY)).waitAction(WaitOptions.waitOptions(Duration.ofMillis(duration))).moveTo(PointOption.point(endX,endY))
                 .release().perform();
     }
 

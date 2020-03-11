@@ -1,86 +1,88 @@
 package parallel_exec.suites;
 
 
-import annotations.ApplicationParams;
 import annotations.ControlNotation;
 import annotations.TypedCommand;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
 import io.appium.java_client.remote.MobileCapabilityType;
-import org.openqa.selenium.By;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Parameters;
-import org.testng.annotations.Test;
-import parallel_exec.android.NativeWrapper;
+import org.testng.annotations.*;
+import parallel_exec.android.web.WebAndroidWrapper;
 import utils.FileFilter;
 import utils.ReflectionHelper;
 import utils.ScannerByLine;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-public class AndroidNativeSuite {
+public class AndroidWebAppSuite {
+
 
     private final static String APPIUM_SERVER_URL = "http://127.0.0.1:4723/wd/hub";
+
     private AndroidDriver<MobileElement> driver;
-    private WebDriverWait wait;
     private TypedCommand typedCommand;
-    private NativeWrapper screen;
+    private WebAndroidWrapper page;
 
-    @ControlNotation(canGoToJira = false)
+
     @BeforeTest(alwaysRun = true)
-    @Parameters({"platform", "udid", "systemPort"})
-    public void setup(String platform, String udid, String systemPort) throws Exception {
-
+    @Parameters({"platform", "udid", "chromeDriverPort", "chromeDriverPath"})
+    public void setup(String platform, String udid, String chromeDriverPort, @Optional String chromeDriverPath) throws Exception {
         URL url = new URL(APPIUM_SERVER_URL);
 
         String[] platformInfo = platform.split(" ");
 
         Class<?> cls = Class.forName("src.main.java.Main.java");
         Method method = cls.getMethod("main", String[].class);
-        ApplicationParams params = method.getAnnotation(ApplicationParams.class);
         typedCommand = method.getAnnotation(TypedCommand.class);
 
-
-
         DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "uiautomator2");
+        capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "Appium");
         capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, platformInfo[0]);
         capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, platformInfo[1]);
         capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Android Emulator");
         capabilities.setCapability(MobileCapabilityType.UDID, udid);
-        capabilities.setCapability(MobileCapabilityType.NO_RESET,true);
-        capabilities.setCapability(MobileCapabilityType.FULL_RESET,false);
-        capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, systemPort);
-        capabilities.setCapability("appPackage", params.appPackage());
-        capabilities.setCapability("appActivity",params.pathToApp());
-        capabilities.setCapability("autoGrantPermissions", "true");
+
+
+        capabilities.setCapability("chromeDriverPort", chromeDriverPort);
+
+        if (chromeDriverPath != null) {
+            capabilities.setCapability(AndroidMobileCapabilityType.CHROMEDRIVER_EXECUTABLE, chromeDriverPath);
+            ChromeOptions options = new ChromeOptions();
+            options.setExperimentalOption("w3c",false);
+            capabilities.setCapability(AndroidMobileCapabilityType.CHROME_OPTIONS,options);
+        }
+
+        capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "Chrome");
         capabilities.setCapability(MobileCapabilityType.ORIENTATION, "PORTRAIT");
         capabilities.setCapability(MobileCapabilityType.NO_RESET, false);
 
-        driver = new AndroidDriver<MobileElement>(url, capabilities);
-        wait = new WebDriverWait(driver,300);
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        page = new WebAndroidWrapper(driver);
 
-        screen = new NativeWrapper(driver);
+
     }
-
+    @ControlNotation(canGoToJira = false)
     @Test
-    public void mainTest() throws InterruptedException, IOException {
-        if (typedCommand.runTypedCommand())
-            typedCommandReflection(screen);
-        else hardCodedTestCase();
-    }
+    public void mainTest() throws  IOException, NoSuchMethodException {
 
-    private String getMessage() {
-        return driver.findElementByAccessibilityId("Alt Message").getText();
+
+            if (typedCommand.runTypedCommand())
+                typedCommandReflection(page);
+            else hardCodedTestCase();
+
+        for (LogEntry entry : driver.manage().logs().get("browser")) {
+
+            if(entry.getLevel().toString().equals("WARNING")||entry.getLevel().toString().equals("ERROR"))
+                for(String s:entry.getMessage().split("\""))
+                    System.out.println(s);
+        }
+
     }
 
     @AfterTest(alwaysRun = true)
@@ -90,10 +92,6 @@ public class AndroidNativeSuite {
         }
     }
 
-
-    private List<MobileElement> sweepElements(String className){
-        return driver.findElements(By.className(className));
-    }
 
     private void typedCommandReflection(Object object) throws IOException {
         ScannerByLine scn = new ScannerByLine(FileFilter.finder("PATH_TO_DIRECTORY")[0]);
@@ -110,7 +108,6 @@ public class AndroidNativeSuite {
     private void hardCodedTestCase(){
         //TODO
     }
-
 
 }
 

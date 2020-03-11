@@ -4,7 +4,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ControlNotation {
-    boolean canGoToJira();
-    String jiraKey() default "";
+public @interface TypedCommand {
+
+    String typedCommand() default "";
+
+    boolean runTypedCommand() default false;
 }
